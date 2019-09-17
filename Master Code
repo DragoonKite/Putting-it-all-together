@@ -1,0 +1,47 @@
+import requests
+from datetime import datetime
+
+address = input("Enter Address: ")
+base_url='https://geocode.xyz/)'
+url = base_url + address + "?json=1"
+response = requests.get(url)
+
+
+lattitude = response.json()['latt']
+longitude = response.json()['longt']
+
+parameters = {
+  "lat": lattitude,
+  "lon": longitude
+}
+
+response = requests.get("http://api.open-notify.org/iss-pass.json", params=parameters)
+
+pass_time = response.json()['response']
+
+risetimes = []
+
+for d in pass_time:
+  time = d['risetime']
+  time = datetime.fromtimestamp(time)
+  risetimes.append(time)
+
+falltimes = []
+
+for d in pass_time:
+  rise = d['risetime']
+  dur = d['duration']
+  fall = datetime.fromtimestamp(rise + dur)
+  falltimes.append(fall)
+
+times = []
+
+i=0
+if len(risetimes) == len(falltimes):
+  while i < len(risetimes):
+    print_times= str(risetimes[i]) + str(" - ") + str(falltimes[i])
+    times.append(print_times)
+    print(print_times)
+    i+=1
+else:
+  print("Error: Rise and Fall times are not equal")
